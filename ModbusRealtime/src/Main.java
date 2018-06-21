@@ -2,6 +2,10 @@ import de.re.easymodbus.modbusclient.*;
 import java.lang.*;
 import java.util.concurrent.TimeUnit;
 import java.awt.Color;
+import java.io.PrintWriter;
+import java.io.FileWriter;
+import java.util.Date;
+import java.text.SimpleDateFormat;
  
 public class Main implements StaticVariables{
 	static boolean[] C1_InputStatus = null;
@@ -25,8 +29,11 @@ public class Main implements StaticVariables{
     
 	public static void main(String[] args)
 	{
+		Date d= new Date();
+		SimpleDateFormat df=new SimpleDateFormat("yyyyMMdd");
+		//System.out.println(df.format(d));
 		boolean IsWorked=false;
-		ShowGUI SG = new ShowGUI();
+		/*ShowGUI SG = new ShowGUI();
 		SG.ReDraw(new Color(255,255,0));
 		try {
 			Thread.sleep(1000);
@@ -36,7 +43,7 @@ public class Main implements StaticVariables{
 		    Thread.currentThread().interrupt();
 		}
 		SG.ReDraw(new Color(0,255,0));
-		
+		*/
 		//ModbusClient modbusClient = new ModbusClient("127.0.0.1",502);
 		ModbusClient modbusClient_Cell1 = new ModbusClient("192.168.2.10", 502);    //Ip-Address and Port of Modbus-TCP-Server
         ModbusClient modbusClient_Cell2 = new ModbusClient("192.168.1.20", 502);    //Ip-Address and Port of Modbus-TCP-Server
@@ -46,28 +53,71 @@ public class Main implements StaticVariables{
 		{
 			//modbusClient.Connect();
 			modbusClient_Cell1.Connect();
+			//System.out.println("test1");
             modbusClient_Cell2.Connect();
+            //System.out.println("test2");
             modbusClient_Cell3.Connect();
+            //System.out.println("test3");
             modbusClient_Cell4.Connect();
+            System.out.println("test4");
             IsWorked = true;
-			//modbusClient.WriteMultipleRegisters(11, ModbusClient.ConvertFloatToTwoRegisters((float) 123.56));
-            C1_InputStatus = modbusClient_Cell1.ReadDiscreteInputs(2, 5);  //Read 5 Input Status from address 2 on Cell 1
-            C1_Coils = modbusClient_Cell1.ReadCoils(2, 3);     //Read 3 Coil data from address 2 on Cell 1
-            C1_HoldReg = modbusClient_Cell1.ReadHoldingRegisters(2051, 10);  //Read 5 Holding Registers from address 2051 on Cell 1
-            C2_InputStatus = modbusClient_Cell2.ReadDiscreteInputs(3, 4);  //Read 5 Input Status from address 3 on Cell 2
-            C2_Coils = modbusClient_Cell2.ReadCoils(2, 3);     //Read 3 Coil data from address 2 on Cell 2
-            C2_HoldReg = modbusClient_Cell2.ReadHoldingRegisters(2051, 6);  //Read 5 Holding Registers from address 2051 on Cell 2
-            C3_InputStatus = modbusClient_Cell3.ReadDiscreteInputs(3, 4);  //Read 5 Input Status from address 3 on Cell 3
-            C3_Coils = modbusClient_Cell3.ReadCoils(2, 3);     //Read 3 Coil data from address 2 on Cell 3
-            C3_HoldReg = modbusClient_Cell3.ReadHoldingRegisters(2051, 6);  //Read 5 Holding Registers from address 2051 on Cell 3
-            C4_InputStatus = modbusClient_Cell4.ReadDiscreteInputs(2, 5);  //Read 5 Input Status from address 2 on Cell 4
-            C4_Coils = modbusClient_Cell4.ReadCoils(2, 3);     //Read 3 Coil data from address 2 on Cell 4
-            C4_HoldReg = modbusClient_Cell4.ReadHoldingRegisters(2051, 10);  //Read 5 Holding Registers from address 2051 on Cell 4
+            PrintWriter writer1 = new PrintWriter("OutputData/MonitorCell1_"+df.format(d)+".txt", "UTF-8");
+            writer1.println("Time,R1_front,R1_rear,C1_endIR,C1_startIR,Main,R1_fwd_motor,R1_bwd_motor,C1_motor,C1_working_int,R1_in_transit_int,R1_fwd_int,R1_bwd_int");
+            writer1.flush();
+            //System.out.println("test1");
+            PrintWriter writer2 = new PrintWriter("OutputData/MonitorCell2_"+df.format(d)+".txt", "UTF-8");
+            writer2.println("Time,C1_IR,M1_IR,Main,M1_motor,C2_motor,C2_working_int,M1_working_int");
+            writer2.flush();
+            PrintWriter writer3 = new PrintWriter("OutputData/MonitorCell3_"+df.format(d)+".txt", "UTF-8");
+            writer3.println("Time,C2_IR,M2_IR,Main,M2_motor,C3_motor,C3_working_int,M2_working_int");
+            writer3.flush();
+            PrintWriter writer4 = new PrintWriter("OutputData/MonitorCell4_"+df.format(d)+".txt", "UTF-8");
+            writer4.println("Time,R2_front,R2_rear,C4_endIR,C3_IR,Main,R2_fwd_motor,R2_bwd_motor,C4_motor,C4_working_int,R2_in_transit_int,R2_fwd_int,R2_bwd_int");
+            writer4.flush();
             
+            while(IsWorked) {
+            	//modbusClient.WriteMultipleRegisters(11, ModbusClient.ConvertFloatToTwoRegisters((float) 123.56));
+            	C1_InputStatus = modbusClient_Cell1.ReadDiscreteInputs(2, 5);  //Read 5 Input Status from address 2 on Cell 1
+            	C1_Coils = modbusClient_Cell1.ReadCoils(2, 3);     //Read 3 Coil data from address 2 on Cell 1
+            	C1_HoldReg = modbusClient_Cell1.ReadHoldingRegisters(2051, 10);  //Read 5 Holding Registers from address 2051 on Cell 1
+            	C2_InputStatus = modbusClient_Cell2.ReadDiscreteInputs(3, 4);  //Read 5 Input Status from address 3 on Cell 2
+            	C2_Coils = modbusClient_Cell2.ReadCoils(2, 3);     //Read 3 Coil data from address 2 on Cell 2
+            	C2_HoldReg = modbusClient_Cell2.ReadHoldingRegisters(2051, 6);  //Read 5 Holding Registers from address 2051 on Cell 2
+            	C3_InputStatus = modbusClient_Cell3.ReadDiscreteInputs(3, 4);  //Read 5 Input Status from address 3 on Cell 3
+            	C3_Coils = modbusClient_Cell3.ReadCoils(2, 3);     //Read 3 Coil data from address 2 on Cell 3
+            	C3_HoldReg = modbusClient_Cell3.ReadHoldingRegisters(2051, 6);  //Read 5 Holding Registers from address 2051 on Cell 3
+            	C4_InputStatus = modbusClient_Cell4.ReadDiscreteInputs(2, 5);  //Read 5 Input Status from address 2 on Cell 4
+            	C4_Coils = modbusClient_Cell4.ReadCoils(2, 3);     //Read 3 Coil data from address 2 on Cell 4
+            	C4_HoldReg = modbusClient_Cell4.ReadHoldingRegisters(2051, 10);  //Read 5 Holding Registers from address 2051 on Cell 4
+            	
+            	Date dd = new Date();
+            	SimpleDateFormat dft=new SimpleDateFormat("HH:mm:ss");
+            	
+            	WriteOutputString();
             
+            	writer1.println(dft.format(dd)+outputs1);
+            	writer1.flush();
+            	writer2.println(dft.format(dd)+outputs2);
+            	writer2.flush();
+            	writer3.println(dft.format(dd)+outputs3);
+            	writer3.flush();
+            	writer4.println(dft.format(dd)+outputs4);
+            	writer4.flush();
+            }
+            
+            writer1.close();
+            writer2.close();
+            writer3.close();
+            writer4.close();
+            
+            modbusClient_Cell1.Disconnect();
+            modbusClient_Cell2.Disconnect();
+            modbusClient_Cell3.Disconnect();
+            modbusClient_Cell4.Disconnect();
 		}
 		catch (Exception e)
 		{		
+			//IsWorked = false;
 		}	
 	}
 	
